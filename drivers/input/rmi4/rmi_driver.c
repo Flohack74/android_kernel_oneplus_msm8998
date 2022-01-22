@@ -852,7 +852,7 @@ static int rmi_driver_probe(struct device *dev)
 	void *irq_memory;
 	int irq_count;
 	int retval;
-
+    dev_info(dev, "855");
 	rmi_dbg(RMI_DEBUG_CORE, dev, "%s: Starting probe.\n",
 			__func__);
 
@@ -860,11 +860,13 @@ static int rmi_driver_probe(struct device *dev)
 		rmi_dbg(RMI_DEBUG_CORE, dev, "Not a physical device.\n");
 		return -ENODEV;
 	}
+    dev_info(dev, "863");
 
 	rmi_dev = to_rmi_device(dev);
 	rmi_driver = to_rmi_driver(dev->driver);
 	rmi_dev->driver = rmi_driver;
 
+    dev_info(dev, "869");
 	pdata = rmi_get_platform_data(rmi_dev);
 
 	if (rmi_dev->xport->dev->of_node) {
@@ -873,6 +875,7 @@ static int rmi_driver_probe(struct device *dev)
 			return retval;
 	}
 
+    dev_info(dev, "878");
 	data = devm_kzalloc(dev, sizeof(struct rmi_driver_data), GFP_KERNEL);
 	if (!data)
 		return -ENOMEM;
@@ -881,6 +884,7 @@ static int rmi_driver_probe(struct device *dev)
 	data->rmi_dev = rmi_dev;
 	dev_set_drvdata(&rmi_dev->dev, data);
 
+    dev_info(dev, "887");
 	/*
 	 * Right before a warm boot, the sensor might be in some unusual state,
 	 * such as F54 diagnostics, or F34 bootloader mode after a firmware
@@ -906,6 +910,7 @@ static int rmi_driver_probe(struct device *dev)
 	if (retval < 0)
 		dev_warn(dev, "RMI initial reset failed! Continuing in spite of this.\n");
 
+    dev_info(dev, "913");
 	retval = rmi_read(rmi_dev, PDT_PROPERTIES_LOCATION, &data->pdt_props);
 	if (retval < 0) {
 		/*
@@ -923,6 +928,7 @@ static int rmi_driver_probe(struct device *dev)
 	 * being accessed.
 	 */
 	rmi_dbg(RMI_DEBUG_CORE, dev, "Counting IRQs.\n");
+    dev_info(dev, "931");
 	irq_count = 0;
 	retval = rmi_scan_pdt(rmi_dev, &irq_count, rmi_count_irqs);
 	if (retval < 0) {
@@ -932,6 +938,7 @@ static int rmi_driver_probe(struct device *dev)
 	data->irq_count = irq_count;
 	data->num_of_irq_regs = (data->irq_count + 7) / 8;
 
+    dev_info(dev, "941");
 	mutex_init(&data->irq_mutex);
 
 	size = BITS_TO_LONGS(data->irq_count) * sizeof(unsigned long);
@@ -941,6 +948,7 @@ static int rmi_driver_probe(struct device *dev)
 		goto err;
 	}
 
+    dev_info(dev, "951");
 	data->irq_status	= irq_memory + size * 0;
 	data->fn_irq_bits	= irq_memory + size * 1;
 	data->current_irq_mask	= irq_memory + size * 2;
@@ -956,6 +964,7 @@ static int rmi_driver_probe(struct device *dev)
 		 */
 		data->input = rmi_dev->xport->input;
 	} else {
+    dev_info(dev, "967");
 		data->input = devm_input_allocate_device(dev);
 		if (!data->input) {
 			dev_err(dev, "%s: Failed to allocate input device.\n",
@@ -968,6 +977,7 @@ static int rmi_driver_probe(struct device *dev)
 						"%s/input0", dev_name(dev));
 	}
 
+    dev_info(dev, "980");
 	irq_count = 0;
 	rmi_dbg(RMI_DEBUG_CORE, dev, "Creating functions.");
 	retval = rmi_scan_pdt(rmi_dev, &irq_count, rmi_create_function);
@@ -977,12 +987,14 @@ static int rmi_driver_probe(struct device *dev)
 		goto err_destroy_functions;
 	}
 
+    dev_info(dev, "990");
 	if (!data->f01_container) {
 		dev_err(dev, "Missing F01 container!\n");
 		retval = -EINVAL;
 		goto err_destroy_functions;
 	}
 
+    dev_info(dev, "997");
 	retval = rmi_read_block(rmi_dev,
 				data->f01_container->fd.control_base_addr + 1,
 				data->current_irq_mask, data->num_of_irq_regs);
@@ -992,6 +1004,7 @@ static int rmi_driver_probe(struct device *dev)
 		goto err_destroy_functions;
 	}
 
+    dev_info(dev, "1007");
 	if (data->input) {
 		rmi_driver_set_input_name(rmi_dev, data->input);
 		if (!rmi_dev->xport->input) {
@@ -1003,6 +1016,7 @@ static int rmi_driver_probe(struct device *dev)
 		}
 	}
 
+    dev_info(dev, "1019");
 	if (data->f01_container->dev.driver)
 		/* Driver already bound, so enable ATTN now. */
 		return enable_sensor(rmi_dev);
