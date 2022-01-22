@@ -947,13 +947,17 @@ static int i2c_check_addr_busy(struct i2c_adapter *adapter, int addr)
 	struct i2c_adapter *parent = i2c_parent_is_i2c_adapter(adapter);
 	int result = 0;
 
-	if (parent)
+	if (parent) {
 		result = i2c_check_mux_parents(parent, addr);
+		if (result)
+		    dev_info(&adapter->dev, "parents are busy");
+	}
 
 	if (!result)
 		result = device_for_each_child(&adapter->dev, &addr,
 						i2c_check_mux_children);
-
+		if (result)
+		    dev_info(&adapter->dev, "children are busy");
 	return result;
 }
 
