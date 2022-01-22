@@ -225,18 +225,23 @@ static int rmi_i2c_probe(struct i2c_client *client,
 	struct rmi_i2c_xport *rmi_i2c;
 	int retval;
 
-	rmi_i2c = devm_kzalloc(&client->dev, sizeof(struct rmi_i2c_xport),
+    dev_info(&client->dev, "228");
+		rmi_i2c = devm_kzalloc(&client->dev, sizeof(struct rmi_i2c_xport),
 				GFP_KERNEL);
 	if (!rmi_i2c)
 		return -ENOMEM;
 
 	pdata = &rmi_i2c->xport.pdata;
 
+    dev_info(&client->dev, "236");
+
 	if (!client->dev.of_node && client_pdata)
 		*pdata = *client_pdata;
 
 	if (client->irq > 0)
 		rmi_i2c->irq = client->irq;
+
+    dev_info(&client->dev, "244");
 
 	rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Probing %s.\n",
 			dev_name(&client->dev));
@@ -246,6 +251,7 @@ static int rmi_i2c_probe(struct i2c_client *client,
 		return -ENODEV;
 	}
 
+    dev_info(&client->dev, "254");
 	rmi_i2c->client = client;
 	mutex_init(&rmi_i2c->page_mutex);
 
@@ -253,18 +259,21 @@ static int rmi_i2c_probe(struct i2c_client *client,
 	rmi_i2c->xport.proto_name = "i2c";
 	rmi_i2c->xport.ops = &rmi_i2c_ops;
 
+    dev_info(&client->dev, "262");
 	i2c_set_clientdata(client, rmi_i2c);
 
 	/*
 	 * Setting the page to zero will (a) make sure the PSR is in a
 	 * known state, and (b) make sure we can talk to the device.
 	 */
+    dev_info(&client->dev, "269");
 	retval = rmi_set_page(rmi_i2c, 0);
 	if (retval) {
 		dev_err(&client->dev, "Failed to set page select to 0.\n");
 		return retval;
 	}
 
+    dev_info(&client->dev, "276");
 	retval = rmi_register_transport_device(&rmi_i2c->xport);
 	if (retval) {
 		dev_err(&client->dev, "Failed to register transport driver at 0x%.2X.\n",
@@ -272,6 +281,7 @@ static int rmi_i2c_probe(struct i2c_client *client,
 		return retval;
 	}
 
+    dev_info(&client->dev, "284");
 	retval = rmi_i2c_init_irq(client);
 	if (retval < 0)
 		return retval;
