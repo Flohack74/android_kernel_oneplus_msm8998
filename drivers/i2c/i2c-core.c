@@ -939,6 +939,8 @@ static int i2c_check_mux_children(struct device *dev, void *addrp)
 	else
 		result = __i2c_check_addr_busy(dev, addrp);
 
+			if (result)
+		    dev_info(dev, dev->init_name);
 	return result;
 }
 
