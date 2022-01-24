@@ -659,6 +659,7 @@
 };
 
 &i2c_5 {
+        /delete-node/ synaptics@20;
         touchscreen@20 {
                 compatible = "syna,rmi4-i2c";
                 reg = <0x20>;
